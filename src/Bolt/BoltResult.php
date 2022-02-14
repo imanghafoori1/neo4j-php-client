@@ -18,25 +18,27 @@ use function array_splice;
 use Bolt\protocol\V4;
 use function call_user_func;
 use function count;
-use Generator;
-use Iterator;
 use Laudis\Neo4j\Common\BoltConnection;
+use const PHP_INT_MAX;
+use SeekableIterator;
 
 /**
  * @psalm-import-type BoltCypherStats from \Laudis\Neo4j\Contracts\FormatterInterface
  *
- * @implements Iterator<int, list>
+ * @implements SeekableIterator<int, list>
  */
-final class BoltResult implements Iterator
+final class BoltResult implements SeekableIterator
 {
     private BoltConnection $connection;
     private int $fetchSize;
-    /** @var list<list> */
-    private array $rows = [];
+    /** @var list<list>|null */
+    private ?array $rows = null;
     private ?array $meta = null;
     /** @var callable(array):void|null */
     private $finishedCallback;
     private int $qid;
+    private int $position = 0;
+    private int $pullCount = 0;
 
     public function __construct(BoltConnection $connection, int $fetchSize, int $qid)
     {
@@ -51,8 +53,6 @@ final class BoltResult implements Iterator
         return $this->fetchSize;
     }
 
-    private ?Generator $it = null;
-
     /**
      * @param callable(array):void $finishedCallback
      */
@@ -61,74 +61,42 @@ final class BoltResult implements Iterator
         $this->finishedCallback = $finishedCallback;
     }
 
-    /**
-     * @return Generator<int, list>
-     */
-    public function getIt(): Generator
+    private function rowKey(): int
     {
-        if ($this->it === null) {
-            $this->it = $this->iterator();
+        if ($this->pullCount === -1) {
+            return 0;
         }
 
-        return $this->it;
+        if ($this->pullCount === PHP_INT_MAX) {
+            return $this->position;
+        }
+
+        return $this->position - ($this->pullCount * $this->fetchSize);
     }
 
     /**
-     * @return Generator<int, list>
+     * Fetches the result and closes the connection when done.
      */
-    public function iterator(): Generator
-    {
-        $i = 0;
-        while ($this->meta === null) {
-            $this->fetchResults();
-            foreach ($this->rows as $row) {
-                yield $i => $row;
-                ++$i;
-            }
-        }
-
-        if ($this->finishedCallback) {
-            call_user_func($this->finishedCallback, $this->meta);
-        }
-    }
-
-    public function consume(): array
-    {
-        while ($this->valid()) {
-            $this->next();
-        }
-
-        return $this->meta ?? [];
-    }
-
-    /**
-     * @return non-empty-list<list>
-     */
-    private function pull(): array
-    {
-        $protocol = $this->connection->getImplementation();
-        if (!$protocol instanceof V4) {
-            /** @var non-empty-list<list> */
-            return $protocol->pullAll(['qid' => $this->qid]);
-        }
-
-        /** @var non-empty-list<list> */
-        return $protocol->pull(['n' => $this->fetchSize, 'qid' => $this->qid]);
-    }
-
     private function fetchResults(): void
     {
-        $meta = $this->pull();
+        if ($this->connection->isOpen()) {
+            $protocol = $this->connection->getImplementation();
+            if (!$protocol instanceof V4) {
+                $this->pullCount = PHP_INT_MAX;
+                /** @var non-empty-list<list> */
+                $meta = $protocol->pullAll(['qid' => $this->qid]);
+            } else {
+                ++$this->pullCount;
+                /** @var non-empty-list<list> */
+                $meta = $protocol->pull(['n' => $this->fetchSize, 'qid' => $this->qid]);
+            }
 
-        /** @var list<list> $rows */
-        $rows = array_splice($meta, 0, count($meta) - 1);
-        $this->rows = $rows;
+            /** @var list<list> $rows */
+            $rows = array_splice($meta, 0, count($meta) - 1);
+            $this->rows = $rows;
 
-        /** @var array{0: array} $meta */
-        if (!array_key_exists('has_more', $meta[0]) || $meta[0]['has_more'] === false) {
-            $this->meta = $meta[0];
-            $this->connection->decrementOwner();
-            $this->connection->close();
+            /** @var array{0: array} $meta */
+            $this->handleMetaResults($meta[0]);
         }
     }
 
@@ -137,27 +105,38 @@ final class BoltResult implements Iterator
      */
     public function current(): array
     {
-        return $this->getIt()->current();
+        $this->fetchIfNeeded();
+
+        /**
+         * Constraints are checked during fetchIfNeeded.
+         *
+         * @psalm-suppress PossiblyNullArrayAccess
+         *
+         * @var list
+         */
+        return $this->rows[$this->rowKey()];
     }
 
     public function next(): void
     {
-        $this->getIt()->next();
+        ++$this->position;
+        $this->fetchIfNeeded();
     }
 
     public function key(): int
     {
-        return $this->getIt()->key();
+        return $this->position;
     }
 
     public function valid(): bool
     {
-        return $this->getIt()->valid();
+        $this->fetchIfNeeded();
+
+        return array_key_exists($this->rowKey(), $this->rows ?? []);
     }
 
     public function rewind(): void
     {
-        // Rewind is impossible
     }
 
     public function __destruct()
@@ -171,11 +150,63 @@ final class BoltResult implements Iterator
         }
     }
 
-    public function discard(): void
+    /**
+     * Discards the rows and closes the connection when done. All rows are discarded if the protocol is lower than V4 or when $n === -1.
+     */
+    public function discard(int $n = -1): void
     {
-        $v3 = $this->connection->getImplementation();
-        if ($v3 instanceof V4 && $this->meta === null) {
-            $v3->discard(['qid' => $this->qid]);
+        if ($this->meta === null) {
+            $this->rows = [];
+            $params = ['n' => $n];
+            if ($this->qid !== -1) {
+                $params['qid'] = $this->qid;
+            }
+            if ($this->connection->isOpen()) {
+                $v3 = $this->connection->getImplementation();
+                if ($v3 instanceof V4) {
+                    $meta = $v3->discard($params);
+                    $this->handleMetaResults($meta);
+                }
+            }
+        } elseif ($n === -1) {
+            $this->pullCount = PHP_INT_MAX;
+            $this->meta = [];
+        }
+    }
+
+    public function seek($offset): void
+    {
+        $diff = $offset - $this->position;
+        if ($diff > 0) {
+            $futureFetchCount = (int) ($offset / $this->fetchSize);
+            if ($futureFetchCount > $this->pullCount) {
+                $this->discard(($futureFetchCount - $this->pullCount) * $this->fetchSize);
+                $this->pullCount = $futureFetchCount;
+            }
+
+            $this->position = $offset;
+        }
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    private function fetchIfNeeded(): void
+    {
+        if ($this->rows === null || ($this->rowKey() === count($this->rows) && $this->meta === null)) {
+            $this->fetchResults();
+            if ($this->meta !== null && $this->finishedCallback) {
+                call_user_func($this->finishedCallback, $this->meta);
+            }
+        }
+    }
+
+    private function handleMetaResults(array $array): void
+    {
+        if (!array_key_exists('has_more', $array) || $array['has_more'] === false) {
+            $this->meta = $array;
+            $this->connection->decrementOwner();
+            $this->connection->close();
         }
     }
 }

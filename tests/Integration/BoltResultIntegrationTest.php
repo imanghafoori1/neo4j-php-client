@@ -16,6 +16,7 @@ use Bolt\connection\StreamSocket;
 use Dotenv\Dotenv;
 use function explode;
 use function is_string;
+use function iterator_to_array;
 use Laudis\Neo4j\Authentication\Authenticate;
 use Laudis\Neo4j\Bolt\BoltResult;
 use Laudis\Neo4j\BoltFactory;
@@ -57,10 +58,20 @@ final class BoltResultIntegrationTest extends TestCase
      */
     public function testIterationLong(string $connection): void
     {
+        $i = 0;
+        $result = $this->buildBoltResult($connection);
+        foreach ($result as $i => $x) {
+            self::assertEquals($i + 1, $x[0] ?? 0);
+        }
+
+        self::assertEquals(100000, $i + 1);
+    }
+
+    private function buildBoltResult(string $connection): BoltResult
+    {
         $uri = Uri::create($connection);
         $socket = new StreamSocket($uri->getHost(), $uri->getPort() ?? 7687);
 
-        $i = 0;
         $connection = new BoltConnection(
             '',
             $uri,
@@ -74,12 +85,36 @@ final class BoltResultIntegrationTest extends TestCase
         );
         $connection->open();
         $connection->getImplementation()->run('UNWIND range(1, 100000) AS i RETURN i');
-        $result = new BoltResult($connection, 1000, -1);
-        foreach ($result as $i => $x) {
+
+        return new BoltResult($connection, 1000, -1);
+    }
+
+    /**
+     * @dataProvider  buildConnections
+     */
+    public function testSeek(string $connection): void
+    {
+        $i = 5800;
+        $result = $this->buildBoltResult($connection);
+        $result->seek($i);
+
+        /** @psalm-suppress UnusedForeachValue */
+        foreach ($result as $key => $x) {
+            if ($key === 2316) {
+                break;
+            }
+        }
+        foreach ($result as $key => $x) {
+            self::assertEquals($key, $i);
             self::assertEquals($i + 1, $x[0] ?? 0);
+            if ($i === 5800 + 724) {
+                break;
+            }
+            ++$i;
         }
 
-        self::assertEquals(100000, $i + 1);
-        self::assertIsArray($result->consume());
+        self::assertEquals(725, $i + 1);
+        $result->discard();
+        self::assertEquals([], iterator_to_array($result, false));
     }
 }
