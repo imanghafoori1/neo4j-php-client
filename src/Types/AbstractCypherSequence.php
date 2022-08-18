@@ -421,7 +421,9 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
 
     final public function count(): int
     {
-        return count($this->toArray());
+        $this->preload();
+
+        return $this->currentPosition;
     }
 
     /**
@@ -459,6 +461,9 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             if ($generator->valid()) {
                 $this->keyCache[] = $generator->key();
                 $this->cache[$generator->key()] = $generator->current();
+            } else {
+                $this->keyCache = [];
+                $this->cache = [];
             }
             ++$this->generatorPosition;
             ++$this->currentPosition;
