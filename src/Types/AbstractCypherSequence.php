@@ -18,8 +18,6 @@ use function array_reverse;
 use ArrayAccess;
 use ArrayIterator;
 use BadMethodCallException;
-use function call_user_func;
-use function count;
 use Countable;
 use Generator;
 use function get_object_vars;
@@ -61,39 +59,27 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     protected int $currentPosition = 0;
 
     /**
-     * @var (callable():(Iterator<TKey, TValue>))|Iterator<TKey, TValue>
+     * @var Generator<mixed, TValue>
      */
-    protected $generator;
+    protected Generator $generator;
 
     /**
-     * @param iterable<mixed, TValue>|callable():\Generator<mixed, TValue> $iterable
+     * @param iterable<mixed, TValue>|callable():iterable<mixed, TValue> $iterable
      *
      * @psalm-mutation-free
+     *
+     * @psalm-suppress ImpureFunctionCall
+     * @psalm-suppress ImpureMethodCall
      */
     public function __construct($iterable = [])
     {
-        $this->generator = function () use (&$iterable): Generator {
-            $i = 0;
+        $generatorFactory = function () use ($iterable): Generator {
             /** @var Generator<mixed, TValue> $it */
             $it = is_callable($iterable) ? $iterable() : $iterable;
-            /** @var mixed $key */
-            foreach ($it as $key => $value) {
-                if ($i % $this->cacheLimit === 0) {
-                    $this->cache = [];
-                    $this->keyToCachePosition = [];
-                    $this->cachePositionToKey = [];
-                }
-
-                $this->cache[] = $value;
-
-                $key = $this->castToKey($key, $i);
-                $this->keyToCachePosition[$key] = $i;
-                $this->cachePositionToKey[] = $key;
-
-                yield $key => $value;
-                ++$i;
-            }
+            yield from $it;
         };
+
+        $this->generator = call_user_func($generatorFactory);
     }
 
     /**
@@ -111,6 +97,8 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      * @param mixed $key
      *
      * @return TKey
+     *
+     * @psalm-mutation-free
      */
     abstract protected function castToKey($key, int $position);
 
@@ -398,7 +386,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             throw new OutOfBoundsException(sprintf('Offset: "%s" does not exists in object of instance: %s', $offset, static::class));
         }
 
-        return $this->cache[$offset];
+        return $this->cache[$this->keyToCachePosition[$offset]];
     }
 
     public function offsetSet($offset, $value): void
@@ -418,7 +406,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function offsetExists($offset): bool
     {
-        while (!array_key_exists($offset, $this->cache) && $this->valid()) {
+        while (!array_key_exists($offset, $this->keyToCachePosition) && $this->valid()) {
             $this->next();
         }
 
@@ -459,10 +447,6 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
 
     final public function count(): int
     {
-        if (is_countable($this->generator)) {
-            return count($this->generator);
-        }
-
         $this->preload();
 
         return $this->currentPosition;
@@ -474,33 +458,28 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     #[ReturnTypeWillChange]
     public function current()
     {
-        if ($this->requiresInitialCache()) {
-            $this->rePopulateCache();
-        }
-
         return $this->cache[$this->currentPosition % $this->cacheLimit];
     }
 
     public function valid(): bool
     {
-        return $this->currentPosition < $this->cacheLimit || $this->getGenerator()->valid();
+        return !$this->generator->valid() && !$this->isResultCached();
     }
 
     public function rewind(): void
     {
         $this->currentPosition = ((int) ($this->currentPosition / $this->cacheLimit)) * $this->cacheLimit;
-        if ($this->requiresInitialCache()) {
-            $this->rePopulateCache();
-        }
+
+        $this->autoUpdateCache();
     }
 
     public function next(): void
     {
-        if ($this->currentPosition === ($this->cacheLimit - 1) && $this->getGenerator()->valid()) {
-            $this->rePopulateCache();
-        }
-
         ++$this->currentPosition;
+
+        $this->autoUpdateCache();
+
+        $this->generator->next();
     }
 
     /**
@@ -513,23 +492,12 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     }
 
     /**
-     * @return Iterator<TKey, TValue>
-     */
-    public function getGenerator(): Iterator
-    {
-        if (is_callable($this->generator)) {
-            $this->generator = call_user_func($this->generator);
-        }
-
-        return $this->generator;
-    }
-
-    /**
      * @return static<TValue, TKey>
      */
     public function withCacheLimit(int $cacheLimit): self
     {
         $tbr = $this->copy();
+
         $tbr->cacheLimit = $cacheLimit;
 
         return $tbr;
@@ -567,24 +535,30 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
         return $tbr;
     }
 
-    private function rePopulateCache(): void
+    public function resetCache(): void
     {
-        $generator = $this->getGenerator();
+        $this->cache = [];
         $this->keyToCachePosition = [];
         $this->cachePositionToKey = [];
-        $this->cache = [];
-        $i = 0;
-        while ($generator->valid() && $i < $this->cacheLimit) {
-            $this->cache[] = $generator->current();
-            $this->cachePositionToKey[] = $generator->key();
-            $this->keyToCachePosition[$generator->key()] = $i;
-            $generator->next();
-            ++$i;
-        }
     }
 
-    private function requiresInitialCache(): bool
+    private function isResultCached(): bool
     {
-        return $this->currentPosition === 0 && $this->getGenerator()->valid() && count($this->cache) === 0;
+        return ($this->currentPosition % $this->cacheLimit) < count($this->cache);
+    }
+
+    private function autoUpdateCache(): void
+    {
+        if (!$this->isResultCached()) {
+            if ($this->currentPosition % $this->cacheLimit === 0) {
+                $this->resetCache();
+            }
+
+            $key = $this->castToKey($this->generator->key(), $this->currentPosition);
+
+            $this->cache[] = $this->generator->current();
+            $this->keyToCachePosition[$key] = $this->currentPosition % $this->cacheLimit;
+            $this->cachePositionToKey[] = $key;
+        }
     }
 }

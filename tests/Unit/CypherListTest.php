@@ -47,7 +47,9 @@ final class CypherListTest extends TestCase
         $fromIterable = CypherList::fromIterable($this->list);
 
         self::assertNotSame($this->list, $fromIterable);
-        self::assertEquals($this->list->toArray(), $fromIterable->toArray());
+        $y = $fromIterable->toArray();
+        $x = $this->list->toArray();
+        self::assertEquals($x, $y);
     }
 
     public function testFromIterableArray(): void
