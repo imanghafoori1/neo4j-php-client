@@ -33,22 +33,9 @@ use OutOfBoundsException;
  */
 class ArrayList extends AbstractCypherSequence
 {
-    /**
-     * @param iterable<mixed, TValue>|callable():\Generator<mixed, TValue> $iterable
-     *
-     * @psalm-mutation-free
-     */
-    public function __construct(&$iterable = [])
+    protected function castToKey($key, int $position): int
     {
-        $this->generator = static function () use (&$iterable): Generator {
-            $i = 0;
-            /** @var Generator<mixed, TValue> $it */
-            $it = is_callable($iterable) ? $iterable() : $iterable;
-            foreach ($it as $value) {
-                yield $i => $value;
-                ++$i;
-            }
-        };
+        return $position;
     }
 
     /**

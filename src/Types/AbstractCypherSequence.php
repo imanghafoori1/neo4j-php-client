@@ -66,6 +66,37 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     protected $generator;
 
     /**
+     * @param iterable<mixed, TValue>|callable():\Generator<mixed, TValue> $iterable
+     *
+     * @psalm-mutation-free
+     */
+    public function __construct($iterable = [])
+    {
+        $this->generator = function () use (&$iterable): Generator {
+            $i = 0;
+            /** @var Generator<mixed, TValue> $it */
+            $it = is_callable($iterable) ? $iterable() : $iterable;
+            /** @var mixed $key */
+            foreach ($it as $key => $value) {
+                if ($i % $this->cacheLimit === 0) {
+                    $this->cache = [];
+                    $this->keyToCachePosition = [];
+                    $this->cachePositionToKey = [];
+                }
+
+                $this->cache[] = $value;
+
+                $key = $this->castToKey($key, $i);
+                $this->keyToCachePosition[$key] = $i;
+                $this->cachePositionToKey[] = $key;
+
+                yield $key => $value;
+                ++$i;
+            }
+        };
+    }
+
+    /**
      * @template Value
      *
      * @param callable():(Generator<mixed, Value>) $operation
@@ -75,6 +106,13 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      * @psalm-mutation-free
      */
     abstract protected function withOperation($operation): self;
+
+    /**
+     * @param mixed $key
+     *
+     * @return TKey
+     */
+    abstract protected function castToKey($key, int $position);
 
     /**
      * Copies the sequence.

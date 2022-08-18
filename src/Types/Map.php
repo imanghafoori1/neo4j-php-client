@@ -36,27 +36,13 @@ use stdClass;
  */
 class Map extends AbstractCypherSequence
 {
-    /**
-     * @param iterable<mixed, TValue>|callable():\Generator<mixed, TValue> $iterable
-     *
-     * @psalm-mutation-free
-     */
-    public function __construct(&$iterable = [])
+    protected function castToKey($key, int $position): string
     {
-        $this->generator = function () use (&$iterable): Generator {
-            $i = 0;
-            /** @var Generator<mixed, TValue> $it */
-            $it = is_callable($iterable) ? $iterable() : $iterable;
-            /** @var mixed $key */
-            foreach ($it as $key => $value) {
-                if ($this->isStringable($key)) {
-                    yield (string) $key => $value;
-                } else {
-                    yield (string) $i => $value;
-                }
-                ++$i;
-            }
-        };
+        if ($this->isStringable($key)) {
+            return (string) $key;
+        }
+
+        return (string) $position;
     }
 
     /**
