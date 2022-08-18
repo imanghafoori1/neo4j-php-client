@@ -15,11 +15,9 @@ namespace Laudis\Neo4j\Types;
 
 use function array_key_exists;
 use function array_key_last;
-use ArrayIterator;
 use function count;
 use function func_num_args;
 use Generator;
-use function is_array;
 use function is_callable;
 use function is_iterable;
 use Laudis\Neo4j\Databags\Pair;
@@ -43,40 +41,22 @@ class Map extends AbstractCypherSequence
      *
      * @psalm-mutation-free
      */
-    public function __construct($iterable = [])
+    public function __construct(&$iterable = [])
     {
-        if (is_array($iterable)) {
+        $this->generator = function () use (&$iterable): Generator {
             $i = 0;
-            foreach ($iterable as $key => $value) {
-                if (!$this->isStringable($key)) {
-                    $key = (string) $i;
+            /** @var Generator<mixed, TValue> $it */
+            $it = is_callable($iterable) ? $iterable() : $iterable;
+            /** @var mixed $key */
+            foreach ($it as $key => $value) {
+                if ($this->isStringable($key)) {
+                    yield (string) $key => $value;
+                } else {
+                    yield (string) $i => $value;
                 }
-                /** @var string $key */
-                $this->keyCache[] = $key;
-                /** @var TValue $value */
-                $this->cache[$key] = $value;
                 ++$i;
             }
-            /** @var ArrayIterator<string, TValue> */
-            $it = new ArrayIterator([]);
-            $this->generator = $it;
-            $this->generatorPosition = count($this->keyCache);
-        } else {
-            $this->generator = function () use ($iterable): Generator {
-                $i = 0;
-                /** @var Generator<mixed, TValue> $it */
-                $it = is_callable($iterable) ? $iterable() : $iterable;
-                /** @var mixed $key */
-                foreach ($it as $key => $value) {
-                    if ($this->isStringable($key)) {
-                        yield (string) $key => $value;
-                    } else {
-                        yield (string) $i => $value;
-                    }
-                    ++$i;
-                }
-            };
-        }
+        };
     }
 
     /**
