@@ -62,7 +62,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * @var Generator<mixed, TValue>
      */
-    protected Generator $generator;
+    protected Iterator $generator;
 
     /**
      * @param iterable<mixed, TValue>|callable():iterable<mixed, TValue> $iterable
