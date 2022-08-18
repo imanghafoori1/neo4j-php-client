@@ -20,6 +20,7 @@ use ArrayIterator;
 use BadMethodCallException;
 use Countable;
 use Generator;
+use function array_slice;
 use function get_object_vars;
 use function implode;
 use const INF;
@@ -57,7 +58,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     protected array $cache = [];
     private int $cacheLimit = PHP_INT_MAX;
     protected int $currentPosition = 0;
-    private $booted = false;
+    private bool $booted = false;
 
     /**
      * @var Generator<mixed, TValue>
@@ -78,6 +79,9 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
         $this->generator = (function () use ($iterable): Generator {
             yield from $iterable;
         })();
+        if (is_array($iterable)) {
+            $this->preload();
+        }
     }
 
     /**
