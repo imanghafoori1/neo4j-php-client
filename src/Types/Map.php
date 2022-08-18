@@ -17,8 +17,6 @@ use function array_key_exists;
 use function array_key_last;
 use function count;
 use function func_num_args;
-use Generator;
-use function is_callable;
 use function is_iterable;
 use Laudis\Neo4j\Databags\Pair;
 use Laudis\Neo4j\Exception\RuntimeTypeException;
@@ -36,6 +34,9 @@ use stdClass;
  */
 class Map extends AbstractCypherSequence
 {
+    /**
+     * @psalm-immutable
+     */
     protected function castToKey($key, int $position): string
     {
         if ($this->isStringable($key)) {

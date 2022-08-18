@@ -57,6 +57,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     protected array $cache = [];
     private int $cacheLimit = PHP_INT_MAX;
     protected int $currentPosition = 0;
+    private $booted = false;
 
     /**
      * @var Generator<mixed, TValue>
@@ -73,13 +74,10 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function __construct($iterable = [])
     {
-        $generatorFactory = function () use ($iterable): Generator {
-            /** @var Generator<mixed, TValue> $it */
-            $it = is_callable($iterable) ? $iterable() : $iterable;
-            yield from $it;
-        };
-
-        $this->generator = call_user_func($generatorFactory);
+        $iterable = is_callable($iterable) ? $iterable() : $iterable;
+        $this->generator = (function () use ($iterable): Generator {
+            yield from $iterable;
+        })();
     }
 
     /**
@@ -319,7 +317,10 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     {
         return new ArrayList(function () use ($key) {
             foreach ($this as $value) {
-                if ((is_array($value) && array_key_exists($key, $value)) || ($value instanceof ArrayAccess && $value->offsetExists($key))) {
+                if ((is_array($value) && array_key_exists(
+                            $key,
+                            $value
+                        )) || ($value instanceof ArrayAccess && $value->offsetExists($key))) {
                     yield $value[$key];
                 } elseif (is_object($value) && property_exists($value, $key)) {
                     yield $value->$key;
@@ -339,7 +340,12 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     {
         return new Map(function () use ($key) {
             foreach ($this as $value) {
-                if (((is_array($value) && array_key_exists($key, $value)) || ($value instanceof ArrayAccess && $value->offsetExists($key))) && $this->isStringable($value[$key])) {
+                if (((is_array($value) && array_key_exists(
+                                $key,
+                                $value
+                            )) || ($value instanceof ArrayAccess && $value->offsetExists($key))) && $this->isStringable(
+                        $value[$key]
+                    )) {
                     yield $value[$key] => $value;
                 } elseif (is_object($value) && property_exists($value, $key) && $this->isStringable($value->$key)) {
                     yield $value->$key => $value;
@@ -378,6 +384,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
+        $this->bootIfNotBooted();
         while (!array_key_exists($offset, $this->keyToCachePosition) && $this->valid()) {
             $this->next();
         }
@@ -406,11 +413,12 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function offsetExists($offset): bool
     {
+        $this->bootIfNotBooted();
         while (!array_key_exists($offset, $this->keyToCachePosition) && $this->valid()) {
             $this->next();
         }
 
-        return array_key_exists($offset, $this->cache);
+        return array_key_exists($offset, $this->keyToCachePosition);
     }
 
     #[ReturnTypeWillChange]
@@ -449,7 +457,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     {
         $this->preload();
 
-        return $this->currentPosition;
+        return $this->currentPosition + count($this->cache);
     }
 
     /**
@@ -463,7 +471,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
 
     public function valid(): bool
     {
-        return !$this->generator->valid() && !$this->isResultCached();
+        return !(!$this->generator->valid() && !$this->isResultCached());
     }
 
     public function rewind(): void
@@ -476,10 +484,11 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     public function next(): void
     {
         ++$this->currentPosition;
+        if (!$this->isResultCached()) {
+            $this->generator->next();
+        }
 
         $this->autoUpdateCache();
-
-        $this->generator->next();
     }
 
     /**
@@ -508,6 +517,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function preload(): void
     {
+        $this->rewind();
         while ($this->valid()) {
             $this->next();
         }
@@ -549,7 +559,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
 
     private function autoUpdateCache(): void
     {
-        if (!$this->isResultCached()) {
+        if (!$this->isResultCached() && $this->generator->valid()) {
             if ($this->currentPosition % $this->cacheLimit === 0) {
                 $this->resetCache();
             }
@@ -559,6 +569,15 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             $this->cache[] = $this->generator->current();
             $this->keyToCachePosition[$key] = $this->currentPosition % $this->cacheLimit;
             $this->cachePositionToKey[] = $key;
+
+            $this->booted = true;
+        }
+    }
+
+    private function bootIfNotBooted(): void
+    {
+        if (!$this->booted) {
+            $this->autoUpdateCache();
         }
     }
 }
