@@ -533,4 +533,11 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
 
         return $tbr;
     }
+
+    public function preload(): void
+    {
+        while ($this->valid()) {
+            $this->next();
+        }
+    }
 }
