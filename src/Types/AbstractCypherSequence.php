@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Laudis\Neo4j\Types;
 
-use Throwable;
 use function array_key_exists;
 use function array_reverse;
 use ArrayAccess;
@@ -38,6 +37,7 @@ use OutOfBoundsException;
 use function property_exists;
 use ReturnTypeWillChange;
 use function sprintf;
+use Throwable;
 use UnexpectedValueException;
 
 /**
@@ -483,6 +483,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
         }
 
         $this->preload();
+
         return $this->position;
     }
 
