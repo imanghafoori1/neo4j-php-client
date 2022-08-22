@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Laudis\Neo4j\Types;
 
+use Closure;
 use function array_key_exists;
 use function array_reverse;
 use ArrayAccess;
@@ -32,6 +33,7 @@ use function is_string;
 use Iterator;
 use function iterator_to_array;
 use JsonSerializable;
+use Laudis\Neo4j\Common\RewindableGenerator;
 use function method_exists;
 use OutOfBoundsException;
 use function property_exists;
@@ -87,17 +89,6 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     }
 
     /**
-     * @template Value
-     *
-     * @param callable():(Generator<mixed, Value>) $operation
-     *
-     * @return static<Value, TKey>
-     *
-     * @psalm-mutation-free
-     */
-    abstract protected function withOperation($operation): self;
-
-    /**
      * @param mixed $key
      *
      * @return TKey
@@ -115,10 +106,36 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     final public function copy(): self
     {
-        return $this->withOperation(function () {
-            $this->rewind();
-            yield from $this;
+        return $this->withOperation(static function ($x) {
+            $x->rewind();
+            yield from $x;
         });
+    }
+
+    /**
+     * @template TNewValue
+     * @template TNewKey of array-key
+     *
+     * @param callable(static<TValue, TKey>):Generator<TNewKey, TNewValue> $operation
+     *
+     * @return static<TNewValue, TNewKey>
+     *
+     * @psalm-external-mutation-free
+     */
+    protected function withOperation($operation): self
+    {
+        $tbr = clone $this;
+
+        $operation = Closure::fromCallable($operation)->bindTo(null);
+
+        /**
+         * @var pure-callable(Iterator<TKey, TValue>):Generator<TNewKey, TNewValue> $operation
+         * @var static<TNewValue, TNewKey> $tbr
+         * @psalm-suppress ImpurePropertyAssignment
+         */
+        $tbr->iterator = new RewindableGenerator($tbr, $operation);
+
+        return $tbr;
     }
 
     /**mixed
@@ -180,8 +197,8 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     final public function filter(callable $callback): self
     {
-        return $this->withOperation(function () use ($callback) {
-            foreach ($this as $key => $value) {
+        return $this->withOperation(function ($self) use ($callback) {
+            foreach ($self as $key => $value) {
                 if ($callback($value, $key)) {
                     yield $key => $value;
                 }
@@ -202,8 +219,8 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     final public function map(callable $callback): self
     {
-        return $this->withOperation(function () use ($callback) {
-            foreach ($this as $key => $value) {
+        return $this->withOperation(function ($self) use ($callback) {
+            foreach ($self as $key => $value) {
                 yield $key => $callback($value, $key);
             }
         });
@@ -255,8 +272,9 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function reversed(): self
     {
-        return $this->withOperation(function () {
-            yield from array_reverse($this->toArray());
+        return $this->withOperation(function ($self) {
+            $self->rewind();
+            yield from array_reverse(iterator_to_array($self));
         });
     }
 
@@ -270,11 +288,11 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function slice(int $offset, int $length = null): self
     {
-        return $this->withOperation(function () use ($offset, $length) {
+        return $this->withOperation(static function ($self) use ($offset, $length) {
             if ($length !== 0) {
                 $count = -1;
                 $length ??= INF;
-                foreach ($this as $key => $value) {
+                foreach ($self as $key => $value) {
                     ++$count;
                     if ($count < $offset) {
                         continue;
@@ -300,8 +318,10 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      */
     public function sorted(?callable $comparator = null): self
     {
-        return $this->withOperation(function () use ($comparator) {
-            $iterable = $this->toArray();
+        /** @psalm-suppress InvalidArgument A closure producing a generator is actually a pure closure */
+        return $this->withOperation(function ($self) use ($comparator) {
+            $self->rewind();
+            $iterable = iterator_to_array($self);
 
             if ($comparator) {
                 uasort($iterable, $comparator);
@@ -393,6 +413,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     {
         if (is_array($this->original) || $this->original instanceof ArrayAccess) {
             try {
+                /** @var TValue */
                 return $this->original[$offset];
             } catch (Throwable $e) {
                 throw new OutOfBoundsException(sprintf('Offset: "%s" does not exists in object of instance: %s', $offset, static::class), 0, $e);

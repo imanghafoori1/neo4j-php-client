@@ -29,24 +29,12 @@ use OutOfBoundsException;
  */
 class ArrayList extends AbstractCypherSequence
 {
+    /**
+     * @psalm-mutation-free
+     */
     protected function castToKey($key, int $position): int
     {
         return $position;
-    }
-
-    /**
-     * @template Value
-     *
-     * @param callable():(Generator<mixed, Value>) $operation
-     *
-     * @return static<Value>
-     *
-     * @psalm-mutation-free
-     */
-    protected function withOperation($operation): AbstractCypherSequence
-    {
-        /** @psalm-suppress UnsafeInstantiation */
-        return new static($operation);
     }
 
     /**
@@ -56,6 +44,7 @@ class ArrayList extends AbstractCypherSequence
      */
     public function first()
     {
+        $this->rewind();
         foreach ($this as $value) {
             return $value;
         }
@@ -74,9 +63,17 @@ class ArrayList extends AbstractCypherSequence
             throw new OutOfBoundsException('Cannot grab last element of an empty list');
         }
 
-        $array = $this->toArray();
+        if ($this->valid() === false) {
+            $this->rewind();
+        }
 
-        return $array[count($array) - 1];
+        $lastElement = null;
+        while ($this->valid()) {
+            $lastElement = $this->current();
+            $this->next();
+        }
+
+        return $lastElement;
     }
 
     /**
@@ -90,10 +87,10 @@ class ArrayList extends AbstractCypherSequence
      */
     public function merge($values): ArrayList
     {
-        return $this->withOperation(function () use ($values): Generator {
+        return $this->withOperation(static function ($it) use ($values): Generator {
             $iterator = new AppendIterator();
 
-            $iterator->append($this);
+            $iterator->append($it);
             $iterator->append(new self($values));
 
             yield from $iterator;

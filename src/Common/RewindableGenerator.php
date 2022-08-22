@@ -11,6 +11,7 @@
 
 namespace Laudis\Neo4j\Common;
 
+use Generator;
 use Iterator;
 use ReturnTypeWillChange;
 
@@ -18,21 +19,24 @@ use ReturnTypeWillChange;
  * @template TKey
  * @template TOriginalValue
  * @template TNewValue
+ * @template TNewKey
  *
- * @implements Iterator<TKey, TNewValue>
+ * @implements Iterator<TNewKey, TNewValue>
  */
-class OperatingIterator implements Iterator
+class RewindableGenerator implements Iterator
 {
     private Iterator $originalIterator;
     private Iterator $newIterator;
     /**
-     * @var callable(Iterator<TKey, TOriginalValue>):Iterator<TKey, TNewValue>
+     * @var callable(Iterator<TKey, TOriginalValue>):Iterator<TNewKey, TNewValue>
      */
     private $operation;
 
     /**
-     * @param Iterator<TKey, TOriginalValue>                                     $it
-     * @param callable(Iterator<TKey, TOriginalValue>):Iterator<TKey, TNewValue> $operation
+     * @param Iterator<TKey, TOriginalValue> $it
+     * @param pure-callable(Iterator<TKey, TOriginalValue>):Generator<TNewKey, TNewValue> $operation
+     *
+     * @psalm-external-mutation-free
      */
     public function __construct(Iterator $it, callable $operation)
     {
@@ -58,12 +62,12 @@ class OperatingIterator implements Iterator
         return $this->newIterator->key();
     }
 
-    public function valid()
+    public function valid(): bool
     {
-        $this->newIterator->valid();
+        return $this->newIterator->valid();
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->originalIterator->rewind();
         $this->newIterator = call_user_func($this->operation, $this->originalIterator);

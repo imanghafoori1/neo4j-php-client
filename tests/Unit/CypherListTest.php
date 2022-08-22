@@ -25,7 +25,6 @@ use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use function range;
 use stdClass;
-use function var_dump;
 
 /**
  * @psalm-suppress MixedOperand

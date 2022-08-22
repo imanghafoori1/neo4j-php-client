@@ -33,6 +33,7 @@ class MovingCacheIterator implements Iterator
     {
         $this->it = $it;
         $this->size = $size;
+        /** @var SplQueue<array{key: TKey, position: int, value: TValue}> */
         $this->cache = new SplQueue();
     }
 

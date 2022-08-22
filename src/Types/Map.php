@@ -35,7 +35,7 @@ use stdClass;
 class Map extends AbstractCypherSequence
 {
     /**
-     * @psalm-immutable
+     * @psalm-mutation-free
      */
     protected function castToKey($key, int $position): string
     {
@@ -47,27 +47,13 @@ class Map extends AbstractCypherSequence
     }
 
     /**
-     * @template Value
-     *
-     * @param callable():(\Generator<mixed, Value>) $operation
-     *
-     * @return static<Value>
-     *
-     * @psalm-mutation-free
-     */
-    protected function withOperation($operation): Map
-    {
-        /** @psalm-suppress UnsafeInstantiation */
-        return new static($operation);
-    }
-
-    /**
      * Returns the first pair in the map.
      *
      * @return Pair<string, TValue>
      */
     public function first(): Pair
     {
+        $this->rewind();
         foreach ($this as $key => $value) {
             return new Pair($key, $value);
         }
@@ -148,8 +134,8 @@ class Map extends AbstractCypherSequence
      */
     public function ksorted(callable $comparator = null): Map
     {
-        return $this->withOperation(function () use ($comparator) {
-            $pairs = $this->pairs()->sorted(static function (Pair $x, Pair $y) use ($comparator) {
+        return $this->withOperation(static function ($self) use ($comparator) {
+            $pairs = $self->pairs()->sorted(static function (Pair $x, Pair $y) use ($comparator) {
                 if ($comparator) {
                     return $comparator($x->getKey(), $y->getKey());
                 }
@@ -252,12 +238,14 @@ class Map extends AbstractCypherSequence
      * @param iterable<array-key, TValue> $map
      *
      * @return static<TValue>
+     *
+     * @psalm-immutable
      */
     public function intersect(iterable $map): Map
     {
-        return $this->withOperation(function () use ($map) {
+        return $this->withOperation(function ($self) use ($map) {
             $map = Map::fromIterable($map)->toArray();
-            foreach ($this as $key => $value) {
+            foreach ($self as $key => $value) {
                 if (array_key_exists($key, $map)) {
                     yield $key => $value;
                 }
