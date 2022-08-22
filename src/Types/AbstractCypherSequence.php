@@ -476,7 +476,8 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             return count($this->original);
         }
 
-        return count(iterator_to_array($this));
+        $this->preload();
+        return $this->position;
     }
 
     /**
