@@ -26,7 +26,7 @@ use Psr\Http\Message\ResponseInterface;
 use stdClass;
 
 /**
- * A formatter (aka Hydrator) is reponsible for formatting the incoming results of the driver.
+ * This formatter (aka Hydrator) is reponsible for formatting the incoming results of the driver.
  *
  * @psalm-type CypherStats = array{
  *     nodes_created: int,
@@ -94,7 +94,7 @@ interface FormatterInterface
     public function formatHttpResult(ResponseInterface $response, stdClass $body, HttpConnection $connection, float $resultsAvailableAfter, float $resultsConsumedAfter, iterable $statements): CypherList;
 
     /**
-     * Decorates a request to make make sure it requests the correct format.
+     * Decorates a request to make sure it requests the correct format.
      *
      * @see https://neo4j.com/docs/http-api/current/actions/result-format/
      *

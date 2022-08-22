@@ -81,7 +81,7 @@ final class OGMFormatter implements FormatterInterface
             foreach ($result as $row) {
                 yield $this->formatRow($meta, $row);
             }
-        }))->withCacheLimit($result->getFetchSize());
+        }));
 
         $connection->subscribeResult($tbr);
         $result->addFinishedCallback(function (array $response) use ($holder) {
