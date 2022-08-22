@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Laudis\Neo4j\Types;
 
+use Throwable;
 use function array_key_exists;
 use function array_reverse;
 use ArrayAccess;
@@ -115,6 +116,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     final public function copy(): self
     {
         return $this->withOperation(function () {
+            $this->rewind();
             yield from $this;
         });
     }
@@ -390,7 +392,11 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     public function offsetGet($offset)
     {
         if (is_array($this->original) || $this->original instanceof ArrayAccess) {
-            return $this->original[$offset];
+            try {
+                return $this->original[$offset];
+            } catch (Throwable $e) {
+                throw new OutOfBoundsException(sprintf('Offset: "%s" does not exists in object of instance: %s', $offset, static::class), 0, $e);
+            }
         }
 
         while ($this->valid()) {
@@ -400,7 +406,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             $this->next();
         }
 
-        throw new OutOfBoundsException('Offset '.$offset.' does not exist');
+        throw new OutOfBoundsException(sprintf('Offset: "%s" does not exists in object of instance: %s', $offset, static::class));
     }
 
     public function offsetSet($offset, $value): void

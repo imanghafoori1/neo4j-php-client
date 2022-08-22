@@ -20,6 +20,7 @@ use function is_array;
 use function is_object;
 use Laudis\Neo4j\Bolt\BoltConnection;
 use Laudis\Neo4j\Bolt\BoltResult;
+use Laudis\Neo4j\Common\MovingCacheIterator;
 use Laudis\Neo4j\Contracts\ConnectionInterface;
 use Laudis\Neo4j\Contracts\FormatterInterface;
 use Laudis\Neo4j\Databags\BookmarkHolder;
@@ -58,11 +59,12 @@ final class BasicFormatter implements FormatterInterface
      */
     public function formatBoltResult(array $meta, BoltResult $result, BoltConnection $connection, ?float $runStart, ?float $resultAvailableAfter, ?Statement $statement, ?BookmarkHolder $holder = null): CypherList
     {
-        $result = (new CypherList(function () use ($meta, $result) {
+        $generator = (function () use ($meta, $result) {
             foreach ($result as $row) {
                 yield $this->formatRow($meta, $row);
             }
-        }))->withCacheLimit($result->getFetchSize());
+        })();
+        $result = new CypherList(new MovingCacheIterator($generator, $result->getFetchSize()));
 
         $connection->subscribeResult($result);
 

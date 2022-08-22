@@ -13,6 +13,7 @@ namespace Laudis\Neo4j\Common;
 
 use AppendIterator;
 use Iterator;
+use ReturnTypeWillChange;
 use SplQueue;
 
 /**
@@ -35,12 +36,13 @@ class MovingCacheIterator implements Iterator
         $this->cache = new SplQueue();
     }
 
+    #[ReturnTypeWillChange]
     public function current()
     {
         return $this->it->current();
     }
 
-    public function next()
+    public function next(): void
     {
         $this->cache->enqueue([
             'key' => $this->it->key(),
@@ -56,6 +58,7 @@ class MovingCacheIterator implements Iterator
         ++$this->position;
     }
 
+    #[ReturnTypeWillChange]
     public function key()
     {
         $this->it->key();

@@ -16,6 +16,7 @@ namespace Laudis\Neo4j\Formatter;
 use function array_key_exists;
 use Laudis\Neo4j\Bolt\BoltConnection;
 use Laudis\Neo4j\Bolt\BoltResult;
+use Laudis\Neo4j\Common\MovingCacheIterator;
 use Laudis\Neo4j\Contracts\ConnectionInterface;
 use Laudis\Neo4j\Contracts\FormatterInterface;
 use Laudis\Neo4j\Databags\Bookmark;
@@ -77,11 +78,14 @@ final class OGMFormatter implements FormatterInterface
      */
     public function formatBoltResult(array $meta, BoltResult $result, BoltConnection $connection, float $runStart, float $resultAvailableAfter, Statement $statement, BookmarkHolder $holder): CypherList
     {
-        $tbr = (new CypherList(function () use ($result, $meta) {
+        $generator = (function () use ($result, $meta) {
             foreach ($result as $row) {
                 yield $this->formatRow($meta, $row);
             }
-        }));
+        })();
+
+        $cache = new MovingCacheIterator($generator, $result->getFetchSize());
+        $tbr = new CypherList($cache);
 
         $connection->subscribeResult($tbr);
         $result->addFinishedCallback(function (array $response) use ($holder) {
