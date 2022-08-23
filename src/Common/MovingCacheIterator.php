@@ -12,7 +12,9 @@
 namespace Laudis\Neo4j\Common;
 
 use AppendIterator;
+use ArrayIterator;
 use Iterator;
+use function iterator_to_array;
 use ReturnTypeWillChange;
 use SplQueue;
 
@@ -80,11 +82,17 @@ class MovingCacheIterator implements Iterator
     {
         $append = new AppendIterator();
 
-        $append->append($this->cache);
+        $append->append(new ArrayIterator(array_map(static function (array $x) {
+            return $x['value'];
+        }, iterator_to_array($this->cache))));
         $append->append($this->it);
 
         $this->it = $append;
-        $this->position = $this->cache->bottom()['position'];
+        if ($this->cache->isEmpty()) {
+            $this->position = 0;
+        } else {
+            $this->position = $this->cache->bottom()['position'];
+        }
         /** @psalm-suppress MixedPropertyTypeCoercion */
         $this->cache = new SplQueue();
     }
