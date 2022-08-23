@@ -419,12 +419,10 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             }
         }
 
-        $this->rewind();
-        while ($this->valid()) {
-            if ($this->key() === $offset) {
-                return $this->current();
+        foreach ($this as $key => $value) {
+            if ($key === $offset) {
+                return $value;
             }
-            $this->next();
         }
 
         throw new OutOfBoundsException(sprintf('Offset: "%s" does not exists in object of instance: %s', $offset, static::class));

@@ -14,6 +14,7 @@ namespace Laudis\Neo4j\Common;
 use AppendIterator;
 use ArrayIterator;
 use Iterator;
+use NoRewindIterator;
 use ReturnTypeWillChange;
 use SplFixedArray;
 
@@ -81,7 +82,7 @@ class MovingCacheIterator implements Iterator
         }, $array)));
 
         if ($this->it->valid()) {
-            $append->append($this->it);
+            $append->append(new NoRewindIterator($this->it));
         }
 
         $this->it = $append;
