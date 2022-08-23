@@ -14,9 +14,8 @@ namespace Laudis\Neo4j\Common;
 use AppendIterator;
 use ArrayIterator;
 use Iterator;
-use function iterator_to_array;
 use ReturnTypeWillChange;
-use SplQueue;
+use SplFixedArray;
 
 /**
  * @template TKey
@@ -26,12 +25,11 @@ use SplQueue;
  */
 class MovingCacheIterator implements Iterator
 {
-    private int $size;
     /** @var Iterator<TKey, TValue> */
     private Iterator $it;
     private int $position = 0;
-    /** @var SplQueue<array{key: TKey, position: int, value: TValue}> */
-    private SplQueue $cache;
+    /** @var SplFixedArray<array{key: TKey, position: int, value: TValue}> */
+    private SplFixedArray $cache;
 
     /**
      * @param Iterator<TKey, TValue> $it
@@ -41,8 +39,7 @@ class MovingCacheIterator implements Iterator
     public function __construct(Iterator $it, int $size)
     {
         $this->it = $it;
-        $this->size = $size;
-        $this->cache = new SplQueue();
+        $this->cache = new SplFixedArray($size);
     }
 
     #[ReturnTypeWillChange]
@@ -53,15 +50,11 @@ class MovingCacheIterator implements Iterator
 
     public function next(): void
     {
-        $this->cache->enqueue([
+        $this->cache[$this->position % $this->cache->getSize()] = [
             'key' => $this->it->key(),
             'position' => $this->position,
             'value' => $this->it->current(),
-        ]);
-
-        if ($this->cache->count() > $this->size) {
-            $this->cache->dequeue();
-        }
+        ];
 
         $this->it->next();
         ++$this->position;
@@ -82,20 +75,22 @@ class MovingCacheIterator implements Iterator
     {
         $append = new AppendIterator();
 
+        $array = array_slice($this->cache->toArray(), 0, min($this->cache->getSize(), $this->position));
         $append->append(new ArrayIterator(array_map(static function (array $x) {
             return $x['value'];
-        }, iterator_to_array($this->cache))));
+        }, $array)));
+
         if ($this->it->valid()) {
             $append->append($this->it);
         }
 
         $this->it = $append;
-        if ($this->cache->isEmpty()) {
+        if ($this->position < $this->cache->count()) {
             $this->position = 0;
         } else {
-            $this->position = $this->cache->bottom()['position'];
+            $this->position = $this->position - $this->cache->count();
         }
-        /** @psalm-suppress MixedPropertyTypeCoercion */
-        $this->cache = new SplQueue();
+
+        $this->cache = new SplFixedArray($this->cache->getSize());
     }
 }

@@ -21,8 +21,11 @@ use BadMethodCallException;
 use Closure;
 use Countable;
 use Generator;
+use function get_class;
+use function get_class_vars;
 use function get_object_vars;
 use function implode;
+use function var_dump;
 use const INF;
 use function is_array;
 use function is_callable;
@@ -416,6 +419,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
             }
         }
 
+        $this->rewind();
         while ($this->valid()) {
             if ($this->key() === $offset) {
                 return $this->current();

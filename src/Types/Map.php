@@ -109,7 +109,7 @@ class Map extends AbstractCypherSequence implements Iterator, ArrayAccess
      */
     public function keys(): ArrayList
     {
-        return ArrayList::fromIterable((static function () {
+        return ArrayList::fromIterable((function () {
             foreach ($this as $key => $value) {
                 yield (string) $key;
             }
@@ -123,7 +123,7 @@ class Map extends AbstractCypherSequence implements Iterator, ArrayAccess
      */
     public function pairs(): ArrayList
     {
-        return ArrayList::fromIterable((static function () {
+        return ArrayList::fromIterable((function () {
             foreach ($this as $key => $value) {
                 yield new Pair($key, $value);
             }
