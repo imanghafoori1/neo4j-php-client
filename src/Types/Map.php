@@ -15,9 +15,11 @@ namespace Laudis\Neo4j\Types;
 
 use function array_key_exists;
 use function array_key_last;
+use ArrayAccess;
 use function count;
 use function func_num_args;
 use function is_iterable;
+use Iterator;
 use Laudis\Neo4j\Databags\Pair;
 use Laudis\Neo4j\Exception\RuntimeTypeException;
 use Laudis\Neo4j\TypeCaster;
@@ -30,9 +32,12 @@ use stdClass;
  *
  * @template TValue
  *
- * @extends AbstractCypherSequence<TValue, string>
+ * @extends AbstractCypherSequence<TValue>
+ *
+ * @implements Iterator<string, TValue>
+ * @implements ArrayAccess<string, TValue>
  */
-class Map extends AbstractCypherSequence
+class Map extends AbstractCypherSequence implements Iterator, ArrayAccess
 {
     /**
      * @psalm-mutation-free
@@ -104,9 +109,9 @@ class Map extends AbstractCypherSequence
      */
     public function keys(): ArrayList
     {
-        return ArrayList::fromIterable((function () {
+        return ArrayList::fromIterable((static function () {
             foreach ($this as $key => $value) {
-                yield $key;
+                yield (string) $key;
             }
         })());
     }
@@ -118,7 +123,7 @@ class Map extends AbstractCypherSequence
      */
     public function pairs(): ArrayList
     {
-        return ArrayList::fromIterable((function () {
+        return ArrayList::fromIterable((static function () {
             foreach ($this as $key => $value) {
                 yield new Pair($key, $value);
             }
@@ -134,7 +139,7 @@ class Map extends AbstractCypherSequence
      */
     public function ksorted(callable $comparator = null): Map
     {
-        return $this->withOperation(static function ($self) use ($comparator) {
+        return $this->withOperation(static function (Map $self) use ($comparator) {
             $pairs = $self->pairs()->sorted(static function (Pair $x, Pair $y) use ($comparator) {
                 if ($comparator) {
                     return $comparator($x->getKey(), $y->getKey());
@@ -156,7 +161,7 @@ class Map extends AbstractCypherSequence
      */
     public function values(): ArrayList
     {
-        return ArrayList::fromIterable((function () {
+        return ArrayList::fromIterable((static function () {
             yield from $this;
         })());
     }
@@ -170,16 +175,16 @@ class Map extends AbstractCypherSequence
      */
     public function xor(iterable $map): Map
     {
-        return $this->withOperation(function () use ($map) {
+        return $this->withOperation(static function (Map $self) use ($map) {
             $map = Map::fromIterable($map);
-            foreach ($this as $key => $value) {
+            foreach ($self as $key => $value) {
                 if (!$map->hasKey($key)) {
                     yield $key => $value;
                 }
             }
 
             foreach ($map as $key => $value) {
-                if (!$this->hasKey($key)) {
+                if (!$self->hasKey($key)) {
                     yield $key => $value;
                 }
             }
@@ -197,8 +202,8 @@ class Map extends AbstractCypherSequence
      */
     public function merge(iterable $values): Map
     {
-        return $this->withOperation(function () use ($values) {
-            $tbr = $this->toArray();
+        return $this->withOperation(static function (Map $self) use ($values) {
+            $tbr = $self->toArray();
             $values = Map::fromIterable($values);
 
             foreach ($values as $key => $value) {
@@ -218,9 +223,9 @@ class Map extends AbstractCypherSequence
      */
     public function union(iterable $map): Map
     {
-        return $this->withOperation(function () use ($map) {
+        return $this->withOperation(static function (Map $self) use ($map) {
             $map = Map::fromIterable($map)->toArray();
-            $x = $this->toArray();
+            $x = $self->toArray();
 
             yield from $x;
 
@@ -243,7 +248,7 @@ class Map extends AbstractCypherSequence
      */
     public function intersect(iterable $map): Map
     {
-        return $this->withOperation(function ($self) use ($map) {
+        return $this->withOperation(static function (Map $self) use ($map) {
             $map = Map::fromIterable($map)->toArray();
             foreach ($self as $key => $value) {
                 if (array_key_exists($key, $map)) {
@@ -262,9 +267,9 @@ class Map extends AbstractCypherSequence
      */
     public function diff(iterable $map): Map
     {
-        return $this->withOperation(function () use ($map) {
+        return $this->withOperation(static function (Map $self) use ($map) {
             $map = Map::fromIterable($map)->toArray();
-            foreach ($this as $key => $value) {
+            foreach ($self as $key => $value) {
                 if (!array_key_exists($key, $map)) {
                     yield $key => $value;
                 }

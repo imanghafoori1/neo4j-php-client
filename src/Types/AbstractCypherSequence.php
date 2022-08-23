@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Laudis\Neo4j\Types;
 
-use Closure;
 use function array_key_exists;
 use function array_reverse;
 use ArrayAccess;
 use ArrayIterator;
 use BadMethodCallException;
+use Closure;
 use Countable;
 use Generator;
 use function get_object_vars;
@@ -46,10 +46,11 @@ use UnexpectedValueException;
  * Abstract immutable sequence with basic functional methods.
  *
  * @template TValue
- * @template TKey of array-key
  *
- * @implements ArrayAccess<TKey, TValue>
- * @implements Iterator<TKey, TValue>
+ * @implements ArrayAccess<array-key, TValue>
+ * @implements Iterator<array-key, TValue>
+ *
+ * @psalm-consistent-templates
  */
 abstract class AbstractCypherSequence implements Countable, JsonSerializable, ArrayAccess, Iterator
 {
@@ -75,6 +76,8 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     public function __construct($iterable = [])
     {
         $iterable = is_callable($iterable) ? $iterable() : $iterable;
+        $this->original = $iterable;
+
         if ($iterable instanceof Iterator) {
             $this->iterator = $iterable;
         } elseif (is_array($iterable)) {
@@ -84,14 +87,12 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
                 yield from $iterable;
             })();
         }
-
-        $this->original = $iterable;
     }
 
     /**
      * @param mixed $key
      *
-     * @return TKey
+     * @return array-key
      *
      * @psalm-mutation-free
      */
@@ -100,25 +101,23 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Copies the sequence.
      *
-     * @return static<TValue, TKey>
+     * @return static<TValue>
      *
      * @psalm-mutation-free
      */
     final public function copy(): self
     {
-        return $this->withOperation(static function ($x) {
-            $x->rewind();
+        return $this->withOperation(static function (AbstractCypherSequence $x) {
             yield from $x;
         });
     }
 
     /**
      * @template TNewValue
-     * @template TNewKey of array-key
      *
-     * @param callable(static<TValue, TKey>):Generator<TNewKey, TNewValue> $operation
+     * @param callable(static<TValue>):iterable<array-key, TNewValue> $operation
      *
-     * @return static<TNewValue, TNewKey>
+     * @return static<TNewValue>
      *
      * @psalm-external-mutation-free
      */
@@ -126,14 +125,14 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     {
         $tbr = clone $this;
 
+        /** @psalm-suppress ImpureMethodCall */
         $operation = Closure::fromCallable($operation)->bindTo(null);
 
         /**
-         * @var pure-callable(Iterator<TKey, TValue>):Generator<TNewKey, TNewValue> $operation
-         * @var static<TNewValue, TNewKey> $tbr
+         * @var static<TNewValue> $tbr
          * @psalm-suppress ImpurePropertyAssignment
          */
-        $tbr->iterator = new RewindableGenerator($tbr, $operation);
+        $tbr->iterator = new RewindableGenerator(clone $this, $operation);
 
         return $tbr;
     }
@@ -160,7 +159,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      *
      * @param iterable<mixed, NewValue> $values
      *
-     * @return static<TValue|NewValue, array-key>
+     * @return static<TValue|NewValue>
      *
      * @psalm-mutation-free
      */
@@ -169,7 +168,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Checks if the sequence contains the given key.
      *
-     * @param TKey $key
+     * @param array-key $key
      */
     final public function hasKey($key): bool
     {
@@ -189,15 +188,15 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Creates a filtered the sequence with the provided callback.
      *
-     * @param callable(TValue, TKey):bool $callback
+     * @param callable(TValue, array-key):bool $callback
      *
-     * @return static<TValue, TKey>
+     * @return static<TValue>
      *
      * @psalm-mutation-free
      */
     final public function filter(callable $callback): self
     {
-        return $this->withOperation(function ($self) use ($callback) {
+        return $this->withOperation(static function (AbstractCypherSequence $self) use ($callback) {
             foreach ($self as $key => $value) {
                 if ($callback($value, $key)) {
                     yield $key => $value;
@@ -211,15 +210,15 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      *
      * @template ReturnType
      *
-     * @param callable(TValue, TKey):ReturnType $callback
+     * @param callable(TValue, array-key):ReturnType $callback
      *
-     * @return static<ReturnType, TKey>
+     * @return static<ReturnType>
      *
      * @psalm-mutation-free
      */
     final public function map(callable $callback): self
     {
-        return $this->withOperation(function ($self) use ($callback) {
+        return $this->withOperation(static function (AbstractCypherSequence $self) use ($callback) {
             foreach ($self as $key => $value) {
                 yield $key => $callback($value, $key);
             }
@@ -231,8 +230,8 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      *
      * @template TInitial
      *
-     * @param callable(TInitial|null, TValue, TKey):TInitial $callback
-     * @param TInitial|null                                  $initial
+     * @param callable(TInitial|null, TValue, array-key):TInitial $callback
+     * @param TInitial|null                                       $initial
      *
      * @return TInitial
      */
@@ -250,7 +249,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      *
      * @param TValue $value
      *
-     * @return false|TKey returns the key of the value if it is found, false otherwise
+     * @return false|array-key returns the key of the value if it is found, false otherwise
      */
     final public function find($value)
     {
@@ -266,14 +265,13 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Creates a reversed sequence.
      *
-     * @return static<TValue, TKey>
+     * @return static<TValue>
      *
      * @psalm-mutation-free
      */
     public function reversed(): self
     {
-        return $this->withOperation(function ($self) {
-            $self->rewind();
+        return $this->withOperation(static function (AbstractCypherSequence $self) {
             yield from array_reverse(iterator_to_array($self));
         });
     }
@@ -282,13 +280,13 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      * Slices a new sequence starting from the given offset with a certain length.
      * If the length is null it will slice the entire remainder starting from the offset.
      *
-     * @return static<TValue, TKey>
+     * @return static<TValue>
      *
      * @psalm-mutation-free
      */
     public function slice(int $offset, int $length = null): self
     {
-        return $this->withOperation(static function ($self) use ($offset, $length) {
+        return $this->withOperation(static function (AbstractCypherSequence $self) use ($offset, $length) {
             if ($length !== 0) {
                 $count = -1;
                 $length ??= INF;
@@ -312,15 +310,13 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
      *
      * @param (callable(TValue, TValue):int)|null $comparator
      *
-     * @return static<TValue, TKey>
+     * @return static<TValue>
      *
      * @psalm-mutation-free
      */
     public function sorted(?callable $comparator = null): self
     {
-        /** @psalm-suppress InvalidArgument A closure producing a generator is actually a pure closure */
-        return $this->withOperation(function ($self) use ($comparator) {
-            $self->rewind();
+        return $this->withOperation(static function (AbstractCypherSequence $self) use ($comparator) {
             $iterable = iterator_to_array($self);
 
             if ($comparator) {
@@ -395,9 +391,9 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Iterates over the sequence and applies the callable.
      *
-     * @param callable(TValue, TKey):void $callable
+     * @param callable(TValue, array-key):void $callable
      *
-     * @return static<TValue, TKey>
+     * @return static<TValue>
      */
     public function each(callable $callable): self
     {
@@ -441,8 +437,6 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     }
 
     /**
-     * @param TKey $offset
-     *
      * @psalm-suppress UnusedForeachValue
      */
     public function offsetExists($offset): bool
@@ -474,7 +468,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Returns the sequence as an array.
      *
-     * @return array<TKey, TValue>
+     * @return array<array-key, TValue>
      */
     final public function toArray(): array
     {
@@ -484,7 +478,7 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
     /**
      * Returns the sequence as an array.
      *
-     * @return array<TKey, TValue|array>
+     * @return array<array-key, TValue|array>
      */
     final public function toRecursiveArray(): array
     {
@@ -534,9 +528,6 @@ abstract class AbstractCypherSequence implements Countable, JsonSerializable, Ar
         $this->iterator->next();
     }
 
-    /**
-     * @return TKey
-     */
     #[ReturnTypeWillChange]
     public function key()
     {

@@ -422,6 +422,7 @@ final class CypherListTest extends TestCase
         self::assertEquals(0, $i);
 
         self::assertCount(4, $pairs);
+        $pairs->preload();
         self::assertEquals(4, $i);
 
         self::assertCount(4, $list);

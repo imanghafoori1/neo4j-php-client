@@ -19,6 +19,8 @@ use SplQueue;
 /**
  * @template TKey
  * @template TValue
+ *
+ * @implements Iterator<TKey, TValue>
  */
 class MovingCacheIterator implements Iterator
 {
@@ -29,11 +31,15 @@ class MovingCacheIterator implements Iterator
     /** @var SplQueue<array{key: TKey, position: int, value: TValue}> */
     private SplQueue $cache;
 
+    /**
+     * @param Iterator<TKey, TValue> $it
+     *
+     * @psalm-suppress MixedPropertyTypeCoercion false positive
+     */
     public function __construct(Iterator $it, int $size)
     {
         $this->it = $it;
         $this->size = $size;
-        /** @var SplQueue<array{key: TKey, position: int, value: TValue}> */
         $this->cache = new SplQueue();
     }
 
@@ -79,6 +85,7 @@ class MovingCacheIterator implements Iterator
 
         $this->it = $append;
         $this->position = $this->cache->bottom()['position'];
+        /** @psalm-suppress MixedPropertyTypeCoercion */
         $this->cache = new SplQueue();
     }
 }

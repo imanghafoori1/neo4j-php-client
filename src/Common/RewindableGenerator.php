@@ -25,7 +25,9 @@ use ReturnTypeWillChange;
  */
 class RewindableGenerator implements Iterator
 {
+    /** @var Iterator<TKey, TOriginalValue> */
     private Iterator $originalIterator;
+    /** @var Iterator<TNewKey, TNewValue> */
     private Iterator $newIterator;
     /**
      * @var callable(Iterator<TKey, TOriginalValue>):Iterator<TNewKey, TNewValue>
@@ -41,7 +43,7 @@ class RewindableGenerator implements Iterator
     public function __construct(Iterator $it, callable $operation)
     {
         $this->originalIterator = $it;
-        $this->newIterator = $operation($it);
+        $this->newIterator = $operation(clone $it);
         $this->operation = $operation;
     }
 
@@ -69,7 +71,6 @@ class RewindableGenerator implements Iterator
 
     public function rewind(): void
     {
-        $this->originalIterator->rewind();
-        $this->newIterator = call_user_func($this->operation, $this->originalIterator);
+        $this->newIterator = call_user_func($this->operation, clone $this->originalIterator);
     }
 }

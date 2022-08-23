@@ -14,8 +14,9 @@ declare(strict_types=1);
 namespace Laudis\Neo4j\Types;
 
 use AppendIterator;
-use Generator;
+use ArrayAccess;
 use function is_iterable;
+use Iterator;
 use Laudis\Neo4j\Exception\RuntimeTypeException;
 use Laudis\Neo4j\TypeCaster;
 use OutOfBoundsException;
@@ -25,9 +26,12 @@ use OutOfBoundsException;
  *
  * @template TValue
  *
- * @extends AbstractCypherSequence<TValue, int>
+ * @extends AbstractCypherSequence<TValue>
+ *
+ * @implements Iterator<int, TValue>
+ * @implements ArrayAccess<int, TValue>
  */
-class ArrayList extends AbstractCypherSequence
+class ArrayList extends AbstractCypherSequence implements Iterator, ArrayAccess
 {
     /**
      * @psalm-mutation-free
@@ -87,7 +91,7 @@ class ArrayList extends AbstractCypherSequence
      */
     public function merge($values): ArrayList
     {
-        return $this->withOperation(static function ($it) use ($values): Generator {
+        return $this->withOperation(static function (ArrayList $it) use ($values) {
             $iterator = new AppendIterator();
 
             $iterator->append($it);
