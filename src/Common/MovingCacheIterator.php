@@ -85,7 +85,9 @@ class MovingCacheIterator implements Iterator
         $append->append(new ArrayIterator(array_map(static function (array $x) {
             return $x['value'];
         }, iterator_to_array($this->cache))));
-        $append->append($this->it);
+        if ($this->it->valid()) {
+            $append->append($this->it);
+        }
 
         $this->it = $append;
         if ($this->cache->isEmpty()) {

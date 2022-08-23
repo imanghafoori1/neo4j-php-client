@@ -161,7 +161,7 @@ class Map extends AbstractCypherSequence implements Iterator, ArrayAccess
      */
     public function values(): ArrayList
     {
-        return ArrayList::fromIterable((static function () {
+        return ArrayList::fromIterable((function () {
             yield from $this;
         })());
     }
