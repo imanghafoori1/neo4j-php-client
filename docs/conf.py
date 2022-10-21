@@ -11,11 +11,11 @@ extensions = []
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
-project = u'Guzzle'
-copyright = u'2015, Michael Dowling'
-version = '7'
-html_title = "Guzzle Documentation"
-html_short_title = "Guzzle 7"
+project = u'Neo4j PHP Client and Driver'
+copyright = u'2022, Ghlen Nagels'
+version = '2'
+html_title = "Neo4j PHP Client and Driver"
+html_short_title = "Neo4j PHP Client and Driver"
 
 exclude_patterns = ['_build']
 html_static_path = ['_static']
