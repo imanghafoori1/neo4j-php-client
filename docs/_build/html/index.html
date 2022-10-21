@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>Neo4j PHP Client and Driver &#8212; Guzzle Documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="overview.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="overview.html" title="Overview"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Guzzle 7</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Neo4j PHP Client and Driver</a></li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar"><a href="
+    #" class="text-logo">Guzzle 7</a>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Table Of Contents</h2>
+  </div>
+  <div class="sidebar-toc">
+    
+    
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Guzzle Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+
+    
+  </div>
+</div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="#">Docs</a></li>
+              
+              <li>Neo4j PHP Client and Driver</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <section id="neo4j-php-client-and-driver">
+<h1>Neo4j PHP Client and Driver<a class="headerlink" href="#neo4j-php-client-and-driver" title="Permalink to this heading">¶</a></h1>
+<p><a class="reference external" href="https://github.com/laudis-technologies/neo4j-php-client/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/neo4j-php/neo4j-php-client" /></a> <a class="reference external" href="https://codeclimate.com/github/laudis-technologies/neo4j-php-client/maintainability"><img alt="Code Climate maintainability" src="https://img.shields.io/codeclimate/maintainability/laudis-technologies/neo4j-php-client" /></a> <a class="reference external" href="https://packagist.org/packages/laudis/neo4j-php-client"><img alt="Packagist PHP Version Support" src="https://img.shields.io/packagist/php-v/laudis/neo4j-php-client" /></a></p>
+<p><a class="reference external" href="https://github.com/neo4j-php/neo4j-php-client/actions"><img alt="Github Workflow Status Main Branch" src="https://img.shields.io/github/workflow/status/neo4j-php/neo4j-php-client/Full%20Test/main" /></a> <a class="reference external" href="https://packagist.org/packages/laudis/neo4j-php-client"><img alt="Latest Stable Version" src="https://poser.pugx.org/laudis/neo4j-php-client/v" /></a> <a class="reference external" href="https://github.com/neo4j-php/neo4j-php-client/commits/main"><img alt="Commits Since Latest stable version" src="https://img.shields.io/github/commits-since/neo4j-php/neo4j-php-client/latest" /></a></p>
+<p><a class="reference external" href="https://packagist.org/packages/laudis/neo4j-php-client/stats"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/laudis/neo4j-php-client" /></a> <a class="reference external" href="https://packagist.org/packages/laudis/neo4j-php-client/stats"><img alt="Monthly Downloads" src="https://img.shields.io/packagist/dm/laudis/neo4j-php-client" /></a> <a class="reference external" href="https://discord.com/channels/787399249741479977"><img alt="Chat On Discord" src="https://img.shields.io/discord/787399249741479977" /></a></p>
+<section id="control-to-worlds-most-powerful-graph-database">
+<h2>Control to worlds’ most powerful graph database<a class="headerlink" href="#control-to-worlds-most-powerful-graph-database" title="Permalink to this heading">¶</a></h2>
+<p>This package make its trivial to connect, query and control Neo4j:</p>
+<ul class="simple">
+<li><p>Pick and choose your drivers with easy configuration</p></li>
+<li><p>Intuitive API</p></li>
+<li><p>Extensible</p></li>
+<li><p>Designed, built and tested under close supervision with the official neo4j driver team</p></li>
+<li><p>Validated with <span class="xref std std-ref">testkit</span></p></li>
+<li><p>Fully typed with <span class="xref std std-ref">psalm</span></p></li>
+<li><p>Bolt, HTTP and auto routed drivers available</p></li>
+</ul>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a Neo4j Driver connecting to neo4j.test.com</span>
+<span class="nv">$driver</span> <span class="o">=</span> <span class="nx">\Laudis\Neo4j\Basic\Driver</span><span class="o">::</span><span class="na">create</span><span class="p">(</span><span class="s1">&#39;neo4j://neo4j.test.com&#39;</span><span class="p">);</span>
+<span class="c1">// Create a session to run queries on</span>
+<span class="nv">$session</span> <span class="o">=</span> <span class="nv">$driver</span><span class="o">-&gt;</span><span class="na">createSession</span><span class="p">();</span>
+
+<span class="c1">// Send a parametrised query to the database</span>
+<span class="nv">$result</span> <span class="o">=</span> <span class="nv">$session</span><span class="o">-&gt;</span><span class="na">run</span><span class="p">(</span><span class="o">&lt;&lt;&lt;</span><span class="s1">&#39;CYPHER&#39;</span>
+<span class="k">MATCH</span> <span class="p">(</span><span class="nx">p</span><span class="o">:</span><span class="nx">Person</span><span class="p">)</span> <span class="o">-</span> <span class="p">[</span><span class="o">:</span><span class="nx">Loves</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nx">db</span><span class="o">:</span><span class="nx">Database</span> <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="nv">$name</span><span class="p">})</span>
+<span class="k">RETURN</span> <span class="nx">p</span><span class="o">.</span><span class="nx">name</span> <span class="k">AS</span> <span class="nx">name</span>
+<span class="nx">LIMIT</span> <span class="mi">100</span>
+<span class="nx">CYPHER</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;neo4j&#39;</span><span class="p">]);</span>
+
+<span class="c1">// Pluck the names from the results as an array.</span>
+<span class="nv">$result</span><span class="o">-&gt;</span><span class="na">pluck</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">toArray</span><span class="p">();</span>
+</pre></div>
+</div>
+<section id="user-guide">
+<h3>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#bleeding-edge">Bleeding edge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#contributing">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#guidelines">Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#running-the-tests">Running the tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#reporting-a-security-vulnerability">Reporting a security vulnerability</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#making-a-request">Making a Request</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#creating-a-client">Creating a Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#sending-requests">Sending Requests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#async-requests">Async Requests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#concurrent-requests">Concurrent requests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-responses">Using Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#query-string-parameters">Query String Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#uploading-data">Uploading Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#post-form-requests">POST/Form Requests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#cookies">Cookies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#redirects">Redirects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#environment-variables">Environment Variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#relevant-ini-settings">Relevant ini Settings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Guzzle Clients</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#mock-handler">Mock Handler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#history-middleware">History Middleware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#test-web-server">Test Web Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testing.html#using-the-test-server">Using the test server</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#does-guzzle-require-curl">Does Guzzle require cURL?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#can-guzzle-send-asynchronous-requests">Can Guzzle send asynchronous requests?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#how-can-i-add-custom-curl-options">How can I add custom cURL options?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#how-can-i-add-custom-stream-context-options">How can I add custom stream context options?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#why-am-i-getting-an-ssl-verification-error">Why am I getting an SSL verification error?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#what-is-this-maximum-function-nesting-error">What is this Maximum function nesting error?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#why-am-i-getting-a-417-error-response">Why am I getting a 417 error response?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html#how-can-i-track-redirected-requests">How can I track redirected requests?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="overview.html" title="next chapter (use the right arrow)">Overview</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="overview.html" title="Overview"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Guzzle 7</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Neo4j PHP Client and Driver</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2015, Michael Dowling. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

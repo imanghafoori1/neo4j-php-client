@@ -46,6 +46,54 @@ Find more details [here](#in-depth-requirements)
 ```php
 use Laudis\Neo4j\Authentication\Authenticate;
 use Laudis\Neo4j\ClientBuilder;
+# Neo4j PHP Client and Driver
+
+[![GitHub](https://img.shields.io/github/license/neo4j-php/neo4j-php-client)](https://github.com/laudis-technologies/neo4j-php-client/blob/main/LICENSE)
+[![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/laudis-technologies/neo4j-php-client)](https://codeclimate.com/github/laudis-technologies/neo4j-php-client/maintainability)
+[![Packagist PHP Version Support (custom server)](https://img.shields.io/packagist/php-v/laudis/neo4j-php-client)](https://packagist.org/packages/laudis/neo4j-php-client)
+
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/neo4j-php/neo4j-php-client/Full%20Test/main)
+[![Latest Stable Version](https://poser.pugx.org/laudis/neo4j-php-client/v)](https://packagist.org/packages/laudis/neo4j-php-client)
+[![Commits Since latest](https://img.shields.io/github/commits-since/neo4j-php/neo4j-php-client/latest)](https://github.com/neo4j-php/neo4j-php-client/commits/main)
+
+[![Packagist Downloads](https://img.shields.io/packagist/dt/laudis/neo4j-php-client)](https://packagist.org/packages/laudis/neo4j-php-client/stats)
+[![Packagist Downloads](https://img.shields.io/packagist/dm/laudis/neo4j-php-client)](https://packagist.org/packages/laudis/neo4j-php-client/stats)
+[![Discord](https://img.shields.io/discord/787399249741479977)](https://discord.com/channels/787399249741479977)
+
+
+## Control to worlds' most powerful graph database
+- Pick and choose your drivers with easy configuration
+- Intuitive API
+- Extensible
+- Designed, built and tested under close supervision with the official neo4j driver team
+- Validated with [testkit](https://github.com/neo4j-drivers/testkit)
+- Fully typed with [psalm](https://psalm.dev/)
+- Bolt, HTTP and auto routed drivers available
+
+## See the driver in action
+
+An example project exists on the [neo4j github](https://github.com/neo4j-examples/movies-neo4j-php-client). It uses Slim and neo4j-php-client to build an API for the classic movie's example of neo4j.
+
+### Follow along on the livestream
+
+We are currently running a biweekly neo4j + laravel livestream were we are building the RealWorld example app.
+
+The [github repostiory can be found here](https://github.com/neo4j-examples/php-laravel-neo4j-realworld-example), there are also [recordings](https://www.youtube.com/playlist?list=PL9Hl4pk2FsvViI9wmdDpRS7tZ8V6j4uJs). The live stream usually starts at 5 PM Brussels time on Wednesday, but you can [follow Florent on twitter](https://twitter.com/fbiville) for live updates in case the schedule changes.
+
+## Start your driving experience in three easy steps
+
+### Step 1: install via composer
+
+```bash
+composer require laudis/neo4j-php-client
+```
+Find more details [here](#in-depth-requirements)
+
+### Step 2: create a client
+
+```php
+use Laudis\Neo4j\Authentication\Authenticate;
+use Laudis\Neo4j\ClientBuilder;
 
 $client = ClientBuilder::create()
     ->withDriver('bolt', 'bolt+s://user:password@localhost') // creates a bolt driver
@@ -53,6 +101,37 @@ $client = ClientBuilder::create()
     ->withDriver('neo4j', 'neo4j://neo4j.test.com?database=my-database', Authenticate::oidc('token')) // creates an auto routed driver with an OpenID Connect token
     ->withDefaultDriver('bolt')
     ->build();
+```
+
+You have now created a client with **bolt, HTTPS and neo4j drivers**. The default driver that the client will use is **bolt**.
+
+Read more about the URLs and how to use them to configure drivers [here](#in-depth-configuration).
+
+### Step 3: run a transaction
+
+```php
+use Laudis\Neo4j\Contracts\TransactionInterface;
+$client = ClientBuilder::create()
+    ->withDriver('bolt', 'bolt+s://user:password@localhost') // creates a bolt driver
+    ->withDriver('https', 'https://test.com', Authenticate::basic('user', 'password')) // creates an http driver
+    ->withDriver('neo4j', 'neo4j://neo4j.test.com?database=my-database', Authenticate::oidc('token')) // creates an auto routed driver with an OpenID Connect token
+    ->withDefaultDriver('bolt')
+    ->build();
+
+// Create a Neo4j Driver connecting to neo4j.test.com
+$driver = \Laudis\Neo4j\Basic\Driver::create('neo4j://neo4j.test.com');
+// Create a session to run queries on
+$session = $driver->createSession();
+
+// Send a parametrised query to the database
+$result = $session->run(<<<'CYPHER'
+MATCH (p:Person) - [:Loves] -> (db:Database {name: $name})
+RETURN p.name AS name
+LIMIT 100
+CYPHER, ['name' => 'neo4j']);
+
+// Pluck the names from the results as an array.
+$result->pluck('name')->toArray();
 ```
 
 You have now created a client with **bolt, HTTPS and neo4j drivers**. The default driver that the client will use is **bolt**.

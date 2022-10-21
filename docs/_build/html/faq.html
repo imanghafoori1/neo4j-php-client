@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>FAQ &#8212; Guzzle Documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/guzzle.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Testing Guzzle Clients" href="testing.html" />
+  
+   
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="testing.html" title="Testing Guzzle Clients"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Guzzle 7</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">FAQ</a></li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar"><a href="
+    index.html" class="text-logo">Guzzle 7</a>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Table Of Contents</h2>
+  </div>
+  <div class="sidebar-toc">
+    
+    
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request-options.html">Request Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="psr7.html">Guzzle and PSR-7</a></li>
+<li class="toctree-l1"><a class="reference internal" href="handlers-and-middleware.html">Handlers and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Guzzle Clients</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#does-guzzle-require-curl">Does Guzzle require cURL?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#can-guzzle-send-asynchronous-requests">Can Guzzle send asynchronous requests?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-can-i-add-custom-curl-options">How can I add custom cURL options?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-can-i-add-custom-stream-context-options">How can I add custom stream context options?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-am-i-getting-an-ssl-verification-error">Why am I getting an SSL verification error?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-this-maximum-function-nesting-error">What is this Maximum function nesting error?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-am-i-getting-a-417-error-response">Why am I getting a 417 error response?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-can-i-track-redirected-requests">How can I track redirected requests?</a></li>
+</ul>
+</li>
+</ul>
+
+    
+  </div>
+</div>
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="index.html">Docs</a></li>
+              
+              <li>FAQ</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <section id="faq">
+<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this heading">¶</a></h1>
+<section id="does-guzzle-require-curl">
+<h2>Does Guzzle require cURL?<a class="headerlink" href="#does-guzzle-require-curl" title="Permalink to this heading">¶</a></h2>
+<p>No. Guzzle can use any HTTP handler to send requests. This means that Guzzle
+can be used with cURL, PHP’s stream wrapper, sockets, and non-blocking libraries
+like <a class="reference external" href="https://reactphp.org/">React</a>. You just need to configure an HTTP handler
+to use a different method of sending requests.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Guzzle has historically only utilized cURL to send HTTP requests. cURL is
+an amazing HTTP client (arguably the best), and Guzzle will continue to use
+it by default when it is available. It is rare, but some developers don’t
+have cURL installed on their systems or run into version specific issues.
+By allowing swappable HTTP handlers, Guzzle is now much more customizable
+and able to adapt to fit the needs of more developers.</p>
+</div>
+</section>
+<section id="can-guzzle-send-asynchronous-requests">
+<h2>Can Guzzle send asynchronous requests?<a class="headerlink" href="#can-guzzle-send-asynchronous-requests" title="Permalink to this heading">¶</a></h2>
+<p>Yes. You can use the <code class="docutils literal notranslate"><span class="pre">requestAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">sendAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">getAsync</span></code>,
+<code class="docutils literal notranslate"><span class="pre">headAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">putAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">postAsync</span></code>, <code class="docutils literal notranslate"><span class="pre">deleteAsync</span></code>, and <code class="docutils literal notranslate"><span class="pre">patchAsync</span></code>
+methods of a client to send an asynchronous request. The client will return a
+<code class="docutils literal notranslate"><span class="pre">GuzzleHttp\Promise\PromiseInterface</span></code> object. You can chain <code class="docutils literal notranslate"><span class="pre">then</span></code>
+functions off of the promise.</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$promise</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">requestAsync</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;http://httpbin.org/get&#39;</span><span class="p">);</span>
+<span class="nv">$promise</span><span class="o">-&gt;</span><span class="na">then</span><span class="p">(</span><span class="k">function</span> <span class="p">(</span><span class="nv">$response</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">echo</span> <span class="s1">&#39;Got a response! &#39;</span> <span class="o">.</span> <span class="nv">$response</span><span class="o">-&gt;</span><span class="na">getStatusCode</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>You can force an asynchronous response to complete using the <code class="docutils literal notranslate"><span class="pre">wait()</span></code> method
+of the returned promise.</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$promise</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">requestAsync</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;http://httpbin.org/get&#39;</span><span class="p">);</span>
+<span class="nv">$response</span> <span class="o">=</span> <span class="nv">$promise</span><span class="o">-&gt;</span><span class="na">wait</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="how-can-i-add-custom-curl-options">
+<h2>How can I add custom cURL options?<a class="headerlink" href="#how-can-i-add-custom-curl-options" title="Permalink to this heading">¶</a></h2>
+<p>cURL offers a huge number of <a class="reference external" href="https://www.php.net/curl_setopt">customizable options</a>.
+While Guzzle normalizes many of these options across different handlers, there
+are times when you need to set custom cURL options. This can be accomplished
+by passing an associative array of cURL settings in the <strong>curl</strong> key of a
+request.</p>
+<p>For example, let’s say you need to customize the outgoing network interface
+used with a client.</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$client</span><span class="o">-&gt;</span><span class="na">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="s1">&#39;curl&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="nx">CURLOPT_INTERFACE</span> <span class="o">=&gt;</span> <span class="s1">&#39;xxx.xxx.xxx.xxx&#39;</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</pre></div>
+</div>
+<p>If you use asynchronous requests with cURL multi handler and want to tweak it,
+additional options can be specified as an associative array in the
+<strong>options</strong> key of the <code class="docutils literal notranslate"><span class="pre">CurlMultiHandler</span></code> constructor.</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="k">use</span> <span class="nx">GuzzleHttp\Client</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GuzzleHttp\HandlerStack</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">GuzzleHttp\Handler\CurlMultiHandler</span><span class="p">;</span>
+
+<span class="nv">$client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">([</span><span class="s1">&#39;handler&#39;</span> <span class="o">=&gt;</span> <span class="nx">HandlerStack</span><span class="o">::</span><span class="na">create</span><span class="p">(</span><span class="k">new</span> <span class="nx">CurlMultiHandler</span><span class="p">([</span>
+    <span class="s1">&#39;options&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="nx">CURLMOPT_MAX_TOTAL_CONNECTIONS</span> <span class="o">=&gt;</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="nx">CURLMOPT_MAX_HOST_CONNECTIONS</span> <span class="o">=&gt;</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">]))]);</span>
+</pre></div>
+</div>
+</section>
+<section id="how-can-i-add-custom-stream-context-options">
+<h2>How can I add custom stream context options?<a class="headerlink" href="#how-can-i-add-custom-stream-context-options" title="Permalink to this heading">¶</a></h2>
+<p>You can pass custom <a class="reference external" href="https://www.php.net/manual/en/context.php">stream context options</a>
+using the <strong>stream_context</strong> key of the request option. The <strong>stream_context</strong>
+array is an associative array where each key is a PHP transport, and each value
+is an associative array of transport options.</p>
+<p>For example, let’s say you need to customize the outgoing network interface
+used with a client and allow self-signed certificates.</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$client</span><span class="o">-&gt;</span><span class="na">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="s1">&#39;stream&#39;</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+    <span class="s1">&#39;stream_context&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;ssl&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;allow_self_signed&#39;</span> <span class="o">=&gt;</span> <span class="k">true</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;socket&#39;</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s1">&#39;bindto&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;xxx.xxx.xxx.xxx&#39;</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">]);</span>
+</pre></div>
+</div>
+</section>
+<section id="why-am-i-getting-an-ssl-verification-error">
+<h2>Why am I getting an SSL verification error?<a class="headerlink" href="#why-am-i-getting-an-ssl-verification-error" title="Permalink to this heading">¶</a></h2>
+<p>You need to specify the path on disk to the CA bundle used by Guzzle for
+verifying the peer certificate. See <a class="reference internal" href="request-options.html#verify-option"><span class="std std-ref">verify</span></a>.</p>
+</section>
+<section id="what-is-this-maximum-function-nesting-error">
+<h2>What is this Maximum function nesting error?<a class="headerlink" href="#what-is-this-maximum-function-nesting-error" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><p>Maximum function nesting level of ‘100’ reached, aborting</p>
+</div></blockquote>
+<p>You could run into this error if you have the XDebug extension installed and
+you execute a lot of requests in callbacks. This error message comes
+specifically from the XDebug extension. PHP itself does not have a function
+nesting limit. Change this setting in your php.ini to increase the limit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xdebug</span><span class="o">.</span><span class="n">max_nesting_level</span> <span class="o">=</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+</section>
+<section id="why-am-i-getting-a-417-error-response">
+<h2>Why am I getting a 417 error response?<a class="headerlink" href="#why-am-i-getting-a-417-error-response" title="Permalink to this heading">¶</a></h2>
+<p>This can occur for a number of reasons, but if you are sending PUT, POST, or
+PATCH requests with an <code class="docutils literal notranslate"><span class="pre">Expect:</span> <span class="pre">100-Continue</span></code> header, a server that does not
+support this header will return a 417 response. You can work around this by
+setting the <code class="docutils literal notranslate"><span class="pre">expect</span></code> request option to <code class="docutils literal notranslate"><span class="pre">false</span></code>:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="nv">$client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GuzzleHttp\Client</span><span class="p">();</span>
+
+<span class="c1">// Disable the expect header on a single request</span>
+<span class="nv">$response</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">request</span><span class="p">(</span><span class="s1">&#39;PUT&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;expect&#39;</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">]);</span>
+
+<span class="c1">// Disable the expect header on all client requests</span>
+<span class="nv">$client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GuzzleHttp\Client</span><span class="p">([</span><span class="s1">&#39;expect&#39;</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">]);</span>
+</pre></div>
+</div>
+</section>
+<section id="how-can-i-track-redirected-requests">
+<h2>How can I track redirected requests?<a class="headerlink" href="#how-can-i-track-redirected-requests" title="Permalink to this heading">¶</a></h2>
+<p>You can enable tracking of redirected URIs and status codes via the
+<cite>track_redirects</cite> option. Each redirected URI and status code will be stored in the
+<code class="docutils literal notranslate"><span class="pre">X-Guzzle-Redirect-History</span></code> and the <code class="docutils literal notranslate"><span class="pre">X-Guzzle-Redirect-Status-History</span></code>
+header respectively.</p>
+<p>The initial request’s URI and the final status code will be excluded from the results.
+With this in mind you should be able to easily track a request’s full redirect path.</p>
+<p>For example, let’s say you need to track redirects and provide both results
+together in a single report:</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="c1">// First you configure Guzzle with redirect tracking and make a request</span>
+<span class="nv">$client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">([</span>
+    <span class="nx">RequestOptions</span><span class="o">::</span><span class="na">ALLOW_REDIRECTS</span> <span class="o">=&gt;</span> <span class="p">[</span>
+        <span class="s1">&#39;max&#39;</span>             <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span>        <span class="c1">// allow at most 10 redirects.</span>
+        <span class="s1">&#39;strict&#39;</span>          <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>      <span class="c1">// use &quot;strict&quot; RFC compliant redirects.</span>
+        <span class="s1">&#39;referer&#39;</span>         <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>      <span class="c1">// add a Referer header</span>
+        <span class="s1">&#39;track_redirects&#39;</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">]);</span>
+<span class="nv">$initialRequest</span> <span class="o">=</span> <span class="s1">&#39;/redirect/3&#39;</span><span class="p">;</span> <span class="c1">// Store the request URI for later use</span>
+<span class="nv">$response</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="na">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="nv">$initialRequest</span><span class="p">);</span> <span class="c1">// Make your request</span>
+
+<span class="c1">// Retrieve both Redirect History headers</span>
+<span class="nv">$redirectUriHistory</span> <span class="o">=</span> <span class="nv">$response</span><span class="o">-&gt;</span><span class="na">getHeader</span><span class="p">(</span><span class="s1">&#39;X-Guzzle-Redirect-History&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// retrieve Redirect URI history</span>
+<span class="nv">$redirectCodeHistory</span> <span class="o">=</span> <span class="nv">$response</span><span class="o">-&gt;</span><span class="na">getHeader</span><span class="p">(</span><span class="s1">&#39;X-Guzzle-Redirect-Status-History&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// retrieve Redirect HTTP Status history</span>
+
+<span class="c1">// Add the initial URI requested to the (beginning of) URI history</span>
+<span class="nb">array_unshift</span><span class="p">(</span><span class="nv">$redirectUriHistory</span><span class="p">,</span> <span class="nv">$initialRequest</span><span class="p">);</span>
+
+<span class="c1">// Add the final HTTP status code to the end of HTTP response history</span>
+<span class="nb">array_push</span><span class="p">(</span><span class="nv">$redirectCodeHistory</span><span class="p">,</span> <span class="nv">$response</span><span class="o">-&gt;</span><span class="na">getStatusCode</span><span class="p">());</span>
+
+<span class="c1">// (Optional) Combine the items of each array into a single result set</span>
+<span class="nv">$fullRedirectReport</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$redirectUriHistory</span> <span class="k">as</span> <span class="nv">$key</span> <span class="o">=&gt;</span> <span class="nv">$value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$fullRedirectReport</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;location&#39;</span> <span class="o">=&gt;</span> <span class="nv">$value</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span> <span class="o">=&gt;</span> <span class="nv">$redirectCodeHistory</span><span class="p">[</span><span class="nv">$key</span><span class="p">]];</span>
+<span class="p">}</span>
+<span class="k">echo</span> <span class="nb">json_encode</span><span class="p">(</span><span class="nv">$fullRedirectReport</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="testing.html" title="previous chapter (use the left arrow)">Testing Guzzle Clients</a>
+      </div>
+    
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="testing.html" title="Testing Guzzle Clients"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Guzzle 7</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">FAQ</a></li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2015, Michael Dowling. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>
