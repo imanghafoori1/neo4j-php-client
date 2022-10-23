@@ -10,5 +10,5 @@ cc-test-reporter
 /run-pipeline.sh
 composer.lock
 .env
-!/docs/build/.gitkeep
-/docs/build
+!/docs/_build/.gitkeep
+/docs/_build

@@ -1,8 +1,5 @@
-.. title:: Neo4j PHP Client and Driver
-
-====================
 Neo4j PHP Client and Driver
-====================
+###########################
 
 |license| |maintainability| |version-support|
 
@@ -12,7 +9,7 @@ Neo4j PHP Client and Driver
 
 
 Control to worlds' most powerful graph database
------------------------------------------------
+===============================================
 
 This package make its trivial to connect, query and control Neo4j:
 
@@ -20,8 +17,8 @@ This package make its trivial to connect, query and control Neo4j:
 - Intuitive API
 - Extensible
 - Designed, built and tested under close supervision with the official neo4j driver team
-- Validated with :ref:`testkit<https://github.com/neo4j-drivers/testkit>`
-- Fully typed with :ref:`psalm<https://psalm.dev/>`
+- Validated with `testkit <https://github.com/neo4j-drivers/testkit>`_
+- Fully typed with `psalm <https://psalm.dev/>`_
 - Bolt, HTTP and auto routed drivers available
 
 .. code-block:: php
@@ -48,16 +45,19 @@ User Guide
 .. toctree::
     :maxdepth: 3
 
-    overview
+    installation
     quickstart
+    driver-selection
     querying
     results
-    general tips
+    configuration
     architecture
-    lazy evaluation
     high-availability
     testing
-    faq
+    faq-common-issues
+    license
+    reporting-a-security-vulnerability
+    contributing
 
 
 .. |license| image:: https://img.shields.io/github/license/neo4j-php/neo4j-php-client

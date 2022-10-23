@@ -5,14 +5,13 @@ from pygments.lexers.web import PhpLexer
 
 lexers['php'] = PhpLexer(startinline=True, linenos=1)
 lexers['php-annotations'] = PhpLexer(startinline=True, linenos=1)
-primary_domain = 'php'
 
 extensions = []
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
-project = u'Neo4j PHP Client and Driver'
-copyright = u'2022, Ghlen Nagels'
+project = 'Neo4j PHP Client and Driver'
+copyright = '2022, Ghlen Nagels'
 version = '2'
 html_title = "Neo4j PHP Client and Driver"
 html_short_title = "Neo4j PHP Client and Driver"
