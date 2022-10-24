@@ -65,16 +65,26 @@ branch by setting the version requirement for the PHP Client to ``dev-main``.
 Requirements
 ============
 
-#. PHP 7.4.0
-#. To use the PHP stream handler, ``allow_url_fopen`` must be enabled in your
-   system's php.ini.
-#. To use the cURL handler, you must have a recent version of cURL >= 7.19.4
-   compiled with OpenSSL and zlib.
+* PHP >= 7.4
+* A Neo4j database (minimum version 3.5)
+* ext-bcmath [#f1]_
+* ext-json [#f2]_
+* ext-sockets [#f3]_
+* ext-sysvsem [#f4]_
 
-.. note::
+If you plan on using the HTTP drivers, make sure you have `psr-7 <https://www.php-fig.org/psr/psr-7/>`_, `psr-17 <https://www.php-fig.org/psr/psr-17/>`_ and `psr-18 <https://www.php-fig.org/psr/psr-18/>`_ implementations included into the project. If you don't have any, you can install them via composer:
 
-    Guzzle no longer requires cURL in order to send HTTP requests. Guzzle will
-    use the PHP stream wrapper to send HTTP requests if cURL is not installed.
-    Alternatively, you can provide your own HTTP handler used to send requests.
-    Keep in mind that cURL is still required for sending concurrent requests.
+.. code-block:: bash
+
+    composer require nyholm/psr7 nyholm/psr7-server kriswallsmith/buzz
+
+
+.. rubric:: Footnotes
+
+.. [#f1] Needed to implement the bolt protocol.
+.. [#f2] Needed to implement the http protocol.
+.. [#f3] Can be installed for optimal bolt protocol performance.
+.. [#f4] Can be installed to implement a connection pool across multiple threads.
+
+
 
