@@ -1,17 +1,33 @@
-==========
-Quickstart
-==========
+========
+Overview
+========
 
 This page provides a quick introduction to the driver and introductory examples.
 If you have not already installed it, head over to the :ref:`installation`
 page.
 
 
-Making a Request
-================
+Version Support
+===============
+
+=====   =====
+Version Supported
+=====   =====
+3.5     Yes
+4.0     Yes
+4.1     Yes
+4.2     Yes
+4.3     Yes
+4.4     Yes
+5.0     No
+=====   =====
+
+Feature Support
+===============
 
 You can send requests with Guzzle using a ``GuzzleHttp\ClientInterface``
 object.
+
 
 
 Creating a Client

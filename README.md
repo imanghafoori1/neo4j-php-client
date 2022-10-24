@@ -352,15 +352,20 @@ $client->run('MATCH (x) WHERE x.slug in $listOrMap RETURN x', ['listOrMap' => []
 
 ### Neo4j Feature Support
 
-| **Feature**          | **Supported?** |
-|----------------------|----------------|
-| Authentication       |  Yes           |
-| Transactions         |  Yes           |
-| Http Protocol        |  Yes           |
-| Bolt Protocol        |  Yes           |
-| Cluster              |  Yes           |
-| Aura                 |  Yes           |
-| Jolt Protocol        |  Roadmap       |
+| **Feature**                    | **Supported?** |
+|--------------------------------|----------------|
+| Authentication                 | Yes            |
+| Transactions                   | Yes            |
+| Http Protocol                  | Yes            |
+| Bolt Protocol                  | Yes            |
+| Cluster                        | Yes            |
+| Aura                           | Yes            |
+| Jolt Protocol                  | Yes            |
+| Multi-threaded Connection Pool | Yes            |
+| Bookmarks                      | Yes            |
+| Fail-over                      | Yes            |
+| User Impersonation             | Roadmap        |
+| Logging                        | Roadmap        |
 
 ## In-depth requirements
 
