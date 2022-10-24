@@ -19,7 +19,7 @@ Version Supported
 4.2     Yes
 4.3     Yes
 4.4     Yes
-5.0     No
+5.0     Beta
 =====   =====
 
 Feature Support
