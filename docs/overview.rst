@@ -6,8 +6,12 @@ This page provides a quick introduction to the driver and introductory examples.
 If you have not already installed it, head over to the :doc:`installation <installation>`
 page.
 
+It will also provide a loose overview of the concepts found within the driver as well as the available features and supported versions.
+
 Quickstart
 ==========
+
+These examples can be copy and pasted to get an easy start with the driver and client. Please refer to the :doc:`Driver Or Client Selection<driver-selection>` for a more detailed explanation of how to choose the the initial concepts.
 
 .. _creating a driver:
 

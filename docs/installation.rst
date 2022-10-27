@@ -2,12 +2,12 @@
 Installation
 ============
 
-This page describes how to install the latest version of the driver and client, as well as the bleeding edge one. It will also include the requirements to get the driver and client working, including optional dependencies for improved performance or to get access to a wider set of features.
+This page describes how to install the latest version of the driver and client, as well as the bleeding edge one. It also includes the requirements to get the driver and client working, including optional dependencies for improved performance or to gain access to a wider set of features.
 
 Recommended
 ===========
 
-You can add the client as a dependency using Composer:
+Add the client as a dependency using Composer:
 
 .. code-block:: bash
 
