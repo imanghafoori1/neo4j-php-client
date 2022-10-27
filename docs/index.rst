@@ -38,6 +38,7 @@ This package make its trivial to connect, query and control Neo4j:
     // Pluck the names from the results as an array.
     $result->pluck('name')->toArray();
 
+Refer to the :doc:`overview page<overview>` for a more comprehensive quickstart.
 
 User Guide
 ==========
@@ -46,7 +47,7 @@ User Guide
     :maxdepth: 2
 
     installation
-    quickstart
+    overview
     driver-selection
     querying
     results

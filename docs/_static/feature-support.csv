@@ -1,0 +1,14 @@
+Feature, Supported
+Authentication, Yes
+OAuth, Yes
+Transactions, Yes
+Http Protocol, Yes
+Bolt Protocol, Yes
+Cluster, Yes
+Aura, Yes
+Jolt Protocol, Yes
+Multi-threaded Connection Pool, Beta
+Bookmarks, Beta
+Fail-over, Beta
+User Impersonation, Roadmap
+Logging, Roadmap

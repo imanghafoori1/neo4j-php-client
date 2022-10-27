@@ -115,7 +115,6 @@ Test Web Server
 ===============
 
 Using mock responses is almost always enough when testing a web service client.
-When implementing custom :doc:`HTTP handlers <handlers-and-middleware>`, you'll
 need to send actual HTTP requests in order to sufficiently test the handler.
 However, a best practice is to contact a local web server rather than a server
 over the internet.
